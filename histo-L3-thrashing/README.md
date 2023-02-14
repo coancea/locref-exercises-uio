@@ -1,8 +1,10 @@
-# Histogram-like Computation
+# Histogram-like Computation: Cuda Exercise 1
 
 See section "LL$ threshing: Histogram-like computation" in companion lecture slides.
 
 The programming task refers to implementing the missing code in files `main-gpu.cu` and `kernels.cu.h`---search for keyword "Exercise" in those files and follow the instructions.
+
+Program arguments are, e.g., see Makefile:
 
 - The first argument of the program is the size `N` of the array of indices/values. 
 

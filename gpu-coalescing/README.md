@@ -1,4 +1,4 @@
-# Optimizing Spatial Locality by Transposition on GPUs 
+# Optimizing Spatial Locality by Transposition on GPUs: Cuda Exercise 2
 
 See section "Optimizing Spatial Locality by Transposition" in companion lecture slides.
 
