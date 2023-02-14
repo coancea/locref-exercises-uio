@@ -83,7 +83,7 @@ void bmmmTiledKer ( ElTp* A,      ElTp* B, char* X_tr,   ElTp* Y
   const int ii  = blockIdx.x;
   const int j1  = threadIdx.y;
   const int j2  = threadIdx.x;
-  const int i   = ii * R;
+  const int i   = ii * T;
   const int flat_thid = threadIdx.y * K + threadIdx.x;
 
   #pragma unroll
