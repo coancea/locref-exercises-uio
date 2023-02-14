@@ -140,13 +140,13 @@ __global__ void mmmSymBlkRegInnSeqKer(ElTp* A, ElTp* B, ElTp* C, int heightA, in
                  * This assumes of course that you have 
                  *   already solved Task 3.1.
                  ***************************************/
-                  if( iii + threadIdx.y*Ry + i < heightA &&
-                      kk+k < widthA &&
-                      jjj + threadIdx.y*Ry + j < widthB
+                  if( (iii + threadIdx.y*Ry + i < heightA) &&
+                      (kk+k < widthA) &&
+                      (jjj + threadIdx.x*Rx + j < widthB)
                     )
                   css[i][j] +=  
                     A[ (iii + threadIdx.y*Ry + i)*widthA + (kk + k)] *
-                    B[ (kk+k)*widthB + jjj + threadIdx.y*Ry + j] ;
+                    B[ (kk+k)*widthB + jjj + threadIdx.x*Rx + j] ;
               }
           }
       }
