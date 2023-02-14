@@ -77,7 +77,7 @@ template <class ElTp, int T> __global__
 void bmmmTiledKer ( ElTp* A,      ElTp* B, char* X_tr,   ElTp* Y
                   , const int M,  const int K, const int N
 ) {
-  __shared__ ElTp Xsh_tr[R];
+  __shared__ ElTp Xsh_tr[T];
   ElTp acc[R];
 
   const int ii  = blockIdx.x;
@@ -87,8 +87,8 @@ void bmmmTiledKer ( ElTp* A,      ElTp* B, char* X_tr,   ElTp* Y
   const int flat_thid = threadIdx.y * K + threadIdx.x;
 
   #pragma unroll
-  for(int s=0; s<R; s++)
-    acc[s] = 0;
+  for(int t=0; t<T; t++)
+    acc[t] = 0;
 
   /***********************************************
    *** Cuda Exercise 1: ***
@@ -99,6 +99,6 @@ void bmmmTiledKer ( ElTp* A,      ElTp* B, char* X_tr,   ElTp* Y
    * Remember to flatten the indices to all arrays
    * hold in global memory, i.e., A, B, X_tr, Y.
    ***********************************************/
-  
+
 }
 #endif
