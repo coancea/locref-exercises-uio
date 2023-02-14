@@ -74,6 +74,8 @@ __global__ void mmmSymBlkRegInnSeqKer(ElTp* A, ElTp* B, ElTp* C, int heightA, in
        *    to A (and Aloc) are coalesced, i.e., consecutive
        *    threads on the threadIdx.x dimension having the same
        *    threadIdx.y value read consecutive locations in memory!
+       * If the index is out of the bounds of A then write 0 in Aloc.
+       * 
        * Hints:
        * 1. Remember that threadIdx.y = 0 ... Ty-1 and, for simplicity
        *      assume that Tx = Tk, hence threadIdx.x = 0 ... Tk-1
@@ -101,6 +103,8 @@ __global__ void mmmSymBlkRegInnSeqKer(ElTp* A, ElTp* B, ElTp* C, int heightA, in
        *    to B (and Bloc) are coalesced, i.e., consecutive
        *    threads on the threadIdx.x dimension having the same
        *    threadIdx.y value read consecutive locations in memory!
+       * If the index is out of the bounds of B then write 0 in Bloc.
+       * 
        * Hints:
        * 1. Remember that threadIdx.x = 0 ... Tx-1 and, for simplicity
        *      assume that Ty = Tk, hence threadIdx.y = 0 ... Tk-1
@@ -129,13 +133,19 @@ __global__ void mmmSymBlkRegInnSeqKer(ElTp* A, ElTp* B, ElTp* C, int heightA, in
                 /***************************************
                  * Cuda Exercise 3:
                  * Task 3.2:
-                 * Please modify the code statement below to
-                 * refer to Aloc and Bloc instead of A and B.
+                 * 1. Get rid of the "if" and then: 
+                 * 2. Please modify the "acc +=" statement
+                 *    below to refer to Aloc and Bloc instead
+                 *    of A and B.
                  * This assumes of course that you have 
                  *   already solved Task 3.1.
                  ***************************************/
+                  if( iii + threadIdx.y*Ry + i < heightA &&
+                      kk+k < widthA &&
+                      jjj + threadIdx.y*Ry + j < widthB
+                    )
                   css[i][j] +=  
-                    A[ (iii + threadIdx.y*Rx + i)*widthA + (kk + k)] *
+                    A[ (iii + threadIdx.y*Ry + i)*widthA + (kk + k)] *
                     B[ (kk+k)*widthB + jjj + threadIdx.y*Ry + j] ;
               }
           }
