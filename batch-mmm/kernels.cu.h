@@ -78,7 +78,7 @@ void bmmmTiledKer ( ElTp* A,      ElTp* B, char* X_tr,   ElTp* Y
                   , const int M,  const int K, const int N
 ) {
   __shared__ ElTp Xsh_tr[T];
-  ElTp acc[R];
+  ElTp acc[T];
 
   const int ii  = blockIdx.x;
   const int j1  = threadIdx.y;
