@@ -5,6 +5,8 @@
 #define GPU_RUNS    30
 #define ERR         0.000001
 
+#define LLC_FRAC (3.0 / 7.0)
+
 #define DEVICE_INFO  0
 
 template<int B>
@@ -13,10 +15,10 @@ void multiStepHisto ( uint32_t* d_inp_inds
                     , float*    d_hist
                     , const uint32_t N
                     , const uint32_t H
-                    , const uint32_t L3
+                    , const uint32_t LLC
 ) {
-    // we use 4/7 of the L3 cache to hold `hist`
-    const uint32_t CHUNK = ( 4 * (L3 / 7) ) / sizeof(float);
+    // we use a fraction L of the last-level cache (LLC) to hold `hist`
+    const uint32_t CHUNK = ( LLC_FRAC * LLC ) / sizeof(float);
     uint32_t num_partitions = (H + CHUNK - 1) / CHUNK;
 
     //printf( "Number of partitions: %f\n", ((float)H)/CHUNK );
@@ -43,10 +45,10 @@ void multiStepHisto ( uint32_t* d_inp_inds
 /**
  * N is the length of the input;
  * H is the length of the histogram;
- * L3 is supposed to be the size of the L3 cache in bytes
+ * LLC is supposed to be the size of the LLC cache in bytes
  */
 template<int B>
-void runAll ( const uint32_t N, const uint32_t H, const uint32_t L3 ) {
+void runAll ( const uint32_t N, const uint32_t H, const uint32_t LLC ) {
     // set seed for rand()
     srand(2006);
  
@@ -140,16 +142,16 @@ void runAll ( const uint32_t N, const uint32_t H, const uint32_t L3 ) {
         validate<float>(h_hist, hist_gold, H, ERR);
     }
 
-    { // 5. Multi-Step Traversal to Optimize L3 Threshing
+    { // 5. Multi-Step Traversal to Optimize LLC Threshing
         // dry run
-        multiStepHisto<B>(d_inp_inds, d_inp_vals, d_hist, N, H, L3);
+        multiStepHisto<B>(d_inp_inds, d_inp_vals, d_hist, N, H, LLC);
         cudaDeviceSynchronize();
     
         // measure average of runs
         gettimeofday(&t_start, NULL); 
 
         for (int kkk = 0; kkk < GPU_RUNS; kkk++) {
-            multiStepHisto<B>(d_inp_inds, d_inp_vals, d_hist, N, H, L3);
+            multiStepHisto<B>(d_inp_inds, d_inp_vals, d_hist, N, H, LLC);
         }
         cudaDeviceSynchronize();
 
@@ -182,19 +184,20 @@ void runAll ( const uint32_t N, const uint32_t H, const uint32_t L3 ) {
 int main (int argc, char * argv[]) {
 
     if (argc != 3) {
-        printf("Usage: %s <N> <L3>\n", argv[0]);
+        printf("Usage: %s <N> <LLC>\n", argv[0]);
         exit(1);
     }
     const uint32_t N  = atol(argv[1]);
-    const uint32_t L3 = atol(argv[2]);
-    //const uint32_t H  = atol(argv[2]);
+    const uint32_t LLC = atol(argv[2]);
+    
     // we set the histogram size, such that to take 4 passes,
-    // where we assume 4/7 of the L3 cache is used by the histogram
-    const uint32_t H = 4 * (L3 / 7) - 10;
+    // where we assume a fraction LLC_FRAC of the last-level
+    // cache (LLC) is dedicated to storing the histogram
+    const uint32_t H = ( LLC_FRAC * LLC ) - 10;
 
-    printf("Running GPU-Parallel Versions (Cuda) demonstrating L3 threshing on histogram example. N: %d, H: %d, L3: %d\n"
-          , N, H, L3);
+    printf("Running GPU-Parallel Versions (Cuda) demonstrating LLC threshing on histogram example. N: %d, H: %d, LLC: %d\n"
+          , N, H, LLC);
 
-    runAll<256>( N, H, L3);
+    runAll<256>( N, H, LLC);
     return 0;
 }

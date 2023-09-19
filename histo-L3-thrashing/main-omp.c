@@ -4,6 +4,8 @@ using namespace std;
 #define cudaSuccess 1
 #define cudaGetErrorString(a) "Phony"
 
+#define L3_FRAC (3.0 / 7.0)
+
 #include "../helper.h"
 #include "goldenSeq.h"
 #include "parallelPlan.h"
@@ -107,10 +109,10 @@ int main (int argc, char * argv[]) {
     const uint32_t N  = atol(argv[1]);
     const uint32_t L3 = atol(argv[2]);
 
-    //const uint32_t H  = atol(argv[2]);
     // we set the histogram size, such that to take 4 passes,
-    // where we assume 4/7 of the L3 cache is used by the histogram
-    const uint32_t H = 4 * (L3 / 7) - 10;
+    // where we assume a fraaction L3_FRAC of the L3 cache
+    // is dedicated to storing the histogram
+    const uint32_t H = (L3_FRAC * L3) - 10;
 
     printf("Running CPU-Parallel Versions (OMP) demonstrating L3 threshing on histogram example. N: %d, H: %d, L3: %d\n"
           , N, H, L3);

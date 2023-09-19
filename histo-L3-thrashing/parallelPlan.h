@@ -26,8 +26,8 @@ cudaLikeSeq( uint32_t* inp_inds
            , const uint32_t H
            , const uint32_t L3
 ) {
-    // we use 4/5 of the L3 cache to hold `hist`
-    const uint32_t CHUNK = ( 4 * (L3 / 7) ) / sizeof(float);
+    // we use a fraction of the L3 cache to hold `hist`
+    const uint32_t CHUNK = ( L3_FRAC * L3 ) / sizeof(float);
     uint32_t num_partitions = (H + CHUNK - 1) / CHUNK;
 
     //printf( "Number of partitions: %f\n", ((float)H)/CHUNK );
